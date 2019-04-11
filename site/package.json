@@ -1,0 +1,11 @@
+{
+  "name": "site",
+  "version": "1.0.0",
+  "description": "for express learn",
+  "main": "meadowlark.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "Luo.Reids",
+  "license": "ISC"
+}
