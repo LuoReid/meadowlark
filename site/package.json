@@ -6,7 +6,7 @@
   "scripts": {
     "test": "test"
   },
-  "author": "Luo.Reids",
+  "author": "Luo.Reid",
   "license": "ISC",
   "dependencies": {
     "express": "^4.16.4",
