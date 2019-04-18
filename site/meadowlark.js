@@ -26,26 +26,42 @@ app.get('/about', function (req, res) {
   });
 });
 
-app.get('/tours/hood-river',function(req,res){
+app.get('/tours/hood-river', function (req, res) {
   res.render('tours/hood-river');
 });
 
-app.get('/tours/oregon-coast',function(req,res){
+app.get('/tours/oregon-coast', function (req, res) {
   res.render('tours/oregon-coast');
 });
 
-app.get('/tours/request-group-rate',function(req,res){
+app.get('/tours/request-group-rate', function (req, res) {
   res.render('tours/request-group-rate');
 });
 
-app.get('/headers',function(req,res){
-  res.set('Content-Type','text/plain');
+app.get('/headers', function (req, res) {
+  res.set('Content-Type', 'text/plain');
   var s = '';
-  for(var name in req.headers) {
-    s += name + ': ' + req.headers[name]+'\n';
+  for (var name in req.headers) {
+    s += name + ': ' + req.headers[name] + '\n';
   }
   res.send(s);
 })
+
+app.get('/greeting', function (req, res) {
+  res.status('about', {
+    message: 'welcome',
+    style: req.query.style,
+    userid: req.cookie.userid,
+    username: req.session.username
+  });
+})
+
+app.get('/test',function(req,res){
+  res.type('/text/plain');
+  res.send('this is a test');
+})
+
+app.disable('x-powered-by');
 
 app.use(function (req, res) {
   res.status(404);
