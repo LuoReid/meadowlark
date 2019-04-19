@@ -11,3 +11,12 @@ exports.getFortune = function () {
   var idx = Math.floor(Math.random() * fortunesCookies.length);
   return fortunesCookies[idx];
 };
+
+var tours = [
+  { id: 0, name: 'Hood River', price: 99.99 },
+  { id: 1, name: 'Oregon Coast', price: 149.95 }
+];
+
+exports.getTours = function(){
+  return tours;
+}

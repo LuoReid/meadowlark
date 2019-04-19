@@ -56,10 +56,70 @@ app.get('/greeting', function (req, res) {
   });
 })
 
-app.get('/test',function(req,res){
-  res.type('/text/plain');
+app.get('/test', function (req, res) {
+  res.type('text/plain');
   res.send('this is a test');
 })
+
+app.post('/process-contact', function (req, res) {
+  console.log('Received contact from ' + req.body.name + ' <' + req.body.email + '>');
+
+  try {
+    //save to db
+    return res.xhr ? res.render({ success: true }) : res.redirect(303, '/thank-you');
+  } catch (ex) {
+    return res.xhr ? res.json({ error: 'Database error.' }) : res.redirect(303, '/database-error');
+  }
+})
+
+app.get('/thank-you', function (req, res) {
+  res.render('thank-you:)');
+})
+
+app.get('/api/tours', function (req, res) {
+  var tours = fortune.getTours();
+  var toursXml = '<?xml version="1.0"?><tours>' + tours.map(function (p) {
+    return '<tour price="' + p.price + '" id="' + p.id + '">' + p.name + '</tour>';
+  }).join('') + '</tours>';
+  var toursText = tours.map(function (p) {
+    return p.id + ': ' + p.name + ' (' + p.price + ')';
+  }).join('\n');
+  res.format({
+    'application/json': function () { res.json(tours) },
+    'application/xml': function () { res.type('application/xml'); res.send(toursXml); },
+    'text/plain': function () { res.type('text/plain'); res.send(toursXml); }
+  });
+});
+
+app.put('/api/tour/:id', function (req, res) {
+  var p = tours.some(function (p) { return p.id === req.params.id });
+  if (p) {
+    if (req.query.name) {
+      p.name = req.query.name;
+    }
+    if (req.query.price) {
+      p.price = req.query.price
+    }
+    res.json({ success: true });
+  } else {
+    res.json({ error: 'No such tour exists.' });
+  }
+});
+
+app.del('/api/tour/:id',function(req,res){
+  var i ;
+  for(var i=tours.length-1; i>=0; i--){
+    if(tours[i].id === req.params.id){
+      break;
+    }
+  }
+  if(i>=0){
+    tours.splice(i,1);
+    res.json({success:true});
+  }else{
+    res.json({error:'No such tour exists.'});
+  }
+});
 
 app.disable('x-powered-by');
 
