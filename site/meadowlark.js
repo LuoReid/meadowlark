@@ -15,6 +15,14 @@ app.use(function (req, res, next) {
   next();
 });
 
+app.use(function(req,res,next){
+  if(!res.locals.partials){
+    res.locals.partials = {};
+  }
+  res.locals.partials.weather = fortune.getWeatherData();
+  next();
+})
+
 app.get('/', function (req, res) {
   res.render('home');
 });
