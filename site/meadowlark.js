@@ -2,7 +2,16 @@ var express = require('express');
 var app = express();
 var fortune = require('./lib/fortune.js');
 
-var handlebars = require('express3-handlebars').create({ defaultLayout: 'main' });
+var handlebars = require('express3-handlebars').create({
+  defaultLayout: 'main',
+  helpers: {
+    section: function (name, options) {
+      if (!this._sections) this._sections = {};
+      this._sections[name] = options.fn(this);
+      return null;
+    }
+  }
+});
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 
@@ -15,8 +24,8 @@ app.use(function (req, res, next) {
   next();
 });
 
-app.use(function(req,res,next){
-  if(!res.locals.partials){
+app.use(function (req, res, next) {
+  if (!res.locals.partials) {
     res.locals.partials = {};
   }
   res.locals.partials.weather = fortune.getWeatherData();
@@ -114,18 +123,18 @@ app.put('/api/tour/:id', function (req, res) {
   }
 });
 
-app.del('/api/tour/:id',function(req,res){
-  var i ;
-  for(var i=tours.length-1; i>=0; i--){
-    if(tours[i].id === req.params.id){
+app.del('/api/tour/:id', function (req, res) {
+  var i;
+  for (var i = tours.length - 1; i >= 0; i--) {
+    if (tours[i].id === req.params.id) {
       break;
     }
   }
-  if(i>=0){
-    tours.splice(i,1);
-    res.json({success:true});
-  }else{
-    res.json({error:'No such tour exists.'});
+  if (i >= 0) {
+    tours.splice(i, 1);
+    res.json({ success: true });
+  } else {
+    res.json({ error: 'No such tour exists.' });
   }
 });
 
