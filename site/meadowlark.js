@@ -140,7 +140,20 @@ app.del('/api/tour/:id', function (req, res) {
 
 app.get('/jquerytest',function(req,res){
   res.render('jquerytest');
-})
+});
+
+app.get('/nursery-rhyme',function(req,res){
+  res.render('nursery-rhyme');
+});
+app.get('/data/nursery-rhyme',function(req,res){
+  res.json({
+    animal:'squirrel',
+    bodyPart:'tail',
+    adjective:'bushy',
+    noun:'heck',
+  })
+});
+
 
 app.disable('x-powered-by');
 
