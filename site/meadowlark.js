@@ -138,6 +138,10 @@ app.del('/api/tour/:id', function (req, res) {
   }
 });
 
+app.get('/jquerytest',function(req,res){
+  res.render('jquerytest');
+})
+
 app.disable('x-powered-by');
 
 app.use(function (req, res) {
