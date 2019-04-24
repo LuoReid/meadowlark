@@ -24,6 +24,7 @@ app.use(function (req, res, next) {
   next();
 });
 
+
 app.use(function (req, res, next) {
   if (!res.locals.partials) {
     res.locals.partials = {};
@@ -31,6 +32,8 @@ app.use(function (req, res, next) {
   res.locals.partials.weather = fortune.getWeatherData();
   next();
 })
+
+app.use(require('body-parser')());
 
 app.get('/', function (req, res) {
   res.render('home');
@@ -89,6 +92,18 @@ app.post('/process-contact', function (req, res) {
   }
 })
 
+app.get('/newsletter', function (req, res) {
+  res.render('newsletter', { csrf: 'CSRF token goes here' });
+})
+
+app.post('/process', function (req, res) {
+  console.log(`Form (from queryString): ${req.query.form}`);
+  console.log(`CSRF token (from hidden form field): ${req.body._csrf}`);
+  console.log(`Name (from visible form field): ${req.body.name}`);
+  console.log(`Email (from visible form field): ${req.body.email}`);
+  res.redirect(303, '/thank-you');
+})
+
 app.get('/thank-you', function (req, res) {
   res.render('thank-you:)');
 })
@@ -123,7 +138,7 @@ app.put('/api/tour/:id', function (req, res) {
   }
 });
 
-app.del('/api/tour/:id', function (req, res) {
+app.delete('/api/tour/:id', function (req, res) {
   var i;
   for (var i = tours.length - 1; i >= 0; i--) {
     if (tours[i].id === req.params.id) {
@@ -138,19 +153,19 @@ app.del('/api/tour/:id', function (req, res) {
   }
 });
 
-app.get('/jquerytest',function(req,res){
+app.get('/jquerytest', function (req, res) {
   res.render('jquerytest');
 });
 
-app.get('/nursery-rhyme',function(req,res){
+app.get('/nursery-rhyme', function (req, res) {
   res.render('nursery-rhyme');
 });
-app.get('/data/nursery-rhyme',function(req,res){
+app.get('/data/nursery-rhyme', function (req, res) {
   res.json({
-    animal:'squirrel',
-    bodyPart:'tail',
-    adjective:'bushy',
-    noun:'heck',
+    animal: 'squirrel',
+    bodyPart: 'tail',
+    adjective: 'bushy',
+    noun: 'heck',
   })
 });
 
