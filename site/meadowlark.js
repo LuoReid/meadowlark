@@ -102,12 +102,12 @@ app.post('/process', function (req, res) {
   // console.log(`Name (from visible form field): ${req.body.name}`);
   // console.log(`Email (from visible form field): ${req.body.email}`);
   // res.redirect(303, '/thank-you');
-  if(req.xhr || req.accepts('json,html') === 'json'){
+  if (req.xhr || req.accepts('json,html') === 'json') {
     //如果发生错误，应该发送{error:'error description'}
-    res.send({success:true});
-  }else{
+    res.send({ success: true });
+  } else {
     //如果发生错误，应该重定向到错误页面
-    res.redirect(303,'/thank-you');
+    res.redirect(303, '/thank-you');
   }
 })
 
@@ -178,24 +178,37 @@ app.get('/data/nursery-rhyme', function (req, res) {
 
 var formidable = require('formidable');
 
-app.get('/contest/vacation-photo',function(req,res){
+app.get('/contest/vacation-photo', function (req, res) {
   var now = new Date();
-  res.render('contest/vacation-photo',{
-    year:now.getFullYear(),month:now.getMonth()
+  res.render('contest/vacation-photo', {
+    year: now.getFullYear(), month: now.getMonth()
   });
 });
 
-app.post('/contest/vacation-photo/:year/:month',function(req,res){
+app.post('/contest/vacation-photo/:year/:month', function (req, res) {
   var form = new formidable.IncomingForm();
-  form.parse(req,function(err,fields,files){
-    if(err) return res.redirect(303,'/error');
+  form.parse(req, function (err, fields, files) {
+    if (err) return res.redirect(303, '/error');
     console.log('received fields:');
     console.log(fields);
     console.log('received files:');
     console.log(files);
-    res.redirect(303,'/thank-you');
+    res.redirect(303, '/thank-you');
   });
 });
+
+var jqupload = require('jquery-file-upload-middleware');
+app.use('/upload', function (req, res, next) {
+  var now = Date.now();
+  jqupload.fileHandler({
+    uploadDir: function () {
+      return __dirname + '/public/uploads' + now;
+    },
+    uploadUrl: function () {
+      return '/uploads/' + now;
+    },
+  })(req, res, next);
+})
 
 app.disable('x-powered-by');
 
