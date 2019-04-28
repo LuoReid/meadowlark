@@ -242,6 +242,8 @@ app.use('/upload', function(req, res, next) {
   })(req, res, next);
 });
 
+var credentials = require('./credentials.js');
+
 app.disable('x-powered-by');
 
 app.use(function(req, res) {
