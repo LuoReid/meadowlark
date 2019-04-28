@@ -118,27 +118,16 @@ app.post('/process', function(req, res) {
 });
 
 app.get('/thank-you', function(req, res) {
-  res.render('thank-you:)');
+  res.render('thank-you');
 });
 
 app.get('/api/tours', function(req, res) {
   var tours = fortune.getTours();
-  var toursXml =
-    '<?xml version="1.0"?><tours>' +
-    tours
-      .map(function(p) {
-        return (
-          '<tour price="' +
-          p.price +
-          '" id="' +
-          p.id +
-          '">' +
-          p.name +
-          '</tour>'
-        );
-      })
-      .join('') +
-    '</tours>';
+  var toursXml = `<?xml version="1.0"?><tours>${tours
+    .map(function(p) {
+      return `<tour price="${p.price}" id="${p.id}'">${p.name}</tour>`;
+    })
+    .join('')}</tours>`;
   var toursText = tours
     .map(function(p) {
       return p.id + ': ' + p.name + ' (' + p.price + ')';

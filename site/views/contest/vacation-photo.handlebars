@@ -12,7 +12,12 @@
   <div class="form-group">
     <label for="fieldPhoto" class="col-sm-2 control-label">Vacation photo</label>
     <div class="col-sm-4">
-      <input type="file" class="form-control" required accept="image/*" id="fieldPhoto" name="photo">
+      {{!-- <input type="file" class="form-control" required accept="image/*" id="fieldPhoto" name="photo"> --}}
+      <span class="btn btn-default btn-file">
+        Upload <input type="file" name="photo" id="fieldPhoto" class="form-control" required accept="image/*"
+          data-url="/upload" multiple>
+      </span>
+      <div id="uploads"></div>
     </div>
   </div>
   <div class="form-group">
@@ -22,11 +27,6 @@
   </div>
 </form>
 
-<span class="btn btn-default btn-file">
-  Upload <input type="file" name="photo" id="fieldPhoto" class="form-control" required accept="image/*"
-    data-url="/upload" multiple>
-</span>
-<div id="uploads"></div>
 
 {{#section 'jquery'}}
 <script src="/vendor/jqfu/jquery.ui.widget.js"></script>
