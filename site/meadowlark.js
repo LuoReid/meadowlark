@@ -33,6 +33,11 @@ app.use(function(req, res, next) {
   next();
 });
 
+app.use(function(req, res, next) {
+  console.log(`processing request for "${req.url}"...`);
+  next();
+});
+
 app.use(require('body-parser')());
 
 app.get('/', function(req, res) {
