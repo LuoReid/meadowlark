@@ -17,6 +17,12 @@ app.set('view engine', 'handlebars');
 
 app.set('port', process.env.PORT || 3000);
 
+//var connect = require('connect')();
+//app.use(connect.compress);
+// gzip/deflate outgoing responses
+// var compression = require('compression');
+// app.use(compression());
+
 app.use(express.static(__dirname + '/public'));
 
 app.use(function(req, res, next) {
@@ -39,6 +45,10 @@ app.use(function(req, res, next) {
 });
 
 app.use(require('body-parser')());
+
+var cartValidation = require('./lib/cartValidation.js');
+app.use(cartValidation.checkWaivers);
+app.use(cartValidation.checkGuestCounts);
 
 app.get('/', function(req, res) {
   res.render('home');
