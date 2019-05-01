@@ -248,6 +248,29 @@ app.use('/upload', function(req, res, next) {
 
 var credentials = require('./credentials.js');
 
+var nodemailer = require('nodemailer');
+var mailTransport = nodemailer.createTransport('SMTP', {
+  service: 'Gmail',
+  auth: {
+    user: credentials.gmail.user,
+    pass: credentials.gmail.password,
+  },
+});
+mailTransport.sendMail(
+  {
+    from: '"Luo.Reid" <info@tongjiao.xyz>',
+    to: 'long.read@qq.com',
+    subject: 'Your Meadowlark Travel Tour',
+    text:
+      'Thank you for booking your trip with Meadowlark Travel. We look forward to your visit!',
+  },
+  function(err) {
+    if (err) {
+      console.error('Unable to send email: ' + error);
+    }
+  }
+);
+
 app.disable('x-powered-by');
 
 app.use(function(req, res) {
