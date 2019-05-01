@@ -312,6 +312,12 @@ app.post('/cart/checkout', function(req, res) {
       }
     );
   });
+  var emailService = require('./lib/email.js')(credentials);
+  emailService.send(
+    'luo.reid@gmail.com',
+    'Hood River tours on sale today!',
+    "Get 'em while they're hot!"
+  );
   res.render('cart-thank-you', { cart: cart });
 });
 
