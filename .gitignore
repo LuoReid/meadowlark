@@ -1,2 +1,4 @@
-/site/node_modules
+/site/node_modules/
 /site/credentials.js
+
+/site/log/

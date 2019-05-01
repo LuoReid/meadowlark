@@ -1,5 +1,17 @@
 var express = require('express');
 var app = express();
+
+switch (app.get('env')) {
+  case 'development':
+    app.use(require('morgan')('dev'));
+    break;
+  case 'production':
+    app.use(
+      require('express-logger')({ path: __dirname + '/log/requests.log' })
+    );
+    break;
+}
+
 var fortune = require('./lib/fortune.js');
 
 var handlebars = require('express3-handlebars').create({
@@ -249,31 +261,33 @@ app.use('/upload', function(req, res, next) {
 var credentials = require('./credentials.js');
 
 var nodemailer = require('nodemailer');
-var mailTransport = nodemailer.createTransport('SMTP', {
-  service: 'Gmail',
-  auth: {
-    type: 'OAth2',
-    user: credentials.gmail.user,
-    pass: credentials.gmail.password,
-  },
-});
-mailTransport.sendMail(
-  {
-    from: '"Luo.Reid" <info@tongjiao.xyz>',
-    to: 'long.read@qq.com, "pxiaozei" <pxiaoxei@qq.com>',
-    subject: 'Your Meadowlark Travel Tour',
-    html:
-      '<h1>Meadowlark Travel</h1>\n<p>Thanks for book your trip width Meadowlark Travel. <b>We look forward to your visit!</b></p>',
-    text:
-      'Thank you for booking your trip with Meadowlark Travel. We look forward to your visit!',
-    generateTextFormHtml: true,
-  },
-  function(err) {
-    if (err) {
-      console.error('Unable to send email: ' + error);
-    }
-  }
-);
+var xoauth2 = require('xoauth2');
+// var mailTransport = nodemailer.createTransport('SMTP', {
+//   service: 'Gmail',
+//   auth: {
+//     xoauth2: xoauth2.createXOAuth2Generator({
+//       user: credentials.gmail.user,
+//       pass: credentials.gmail.password,
+//     }),
+//   },
+// });
+// mailTransport.sendMail(
+//   {
+//     from: '"Luo.Reid" <info@tongjiao.xyz>',
+//     to: 'long.read@qq.com, "pxiaozei" <pxiaoxei@qq.com>',
+//     subject: 'Your Meadowlark Travel Tour',
+//     html:
+//       '<h1>Meadowlark Travel</h1>\n<p>Thanks for book your trip width Meadowlark Travel. <b>We look forward to your visit!</b></p>',
+//     text:
+//       'Thank you for booking your trip with Meadowlark Travel. We look forward to your visit!',
+//     generateTextFormHtml: true,
+//   },
+//   function(err) {
+//     if (err) {
+//       console.error('Unable to send email: ' + error);
+//     }
+//   }
+// );
 
 const VALID_EMAIL_REGEX = /^([A-Za-z0-9_\-\.\u4e00-\u9fa5])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,8})$/;
 
@@ -297,21 +311,22 @@ app.post('/cart/checkout', function(req, res) {
   ) {
     if (err) {
       console.log('error in email template');
+      email.sendError('error in email template');
     }
-    mailTransport.sendMail(
-      {
-        from: '"Meadowlark Travel" info@meadowlarktravel.com',
-        to: cart.billing.email,
-        subject: 'Thank you for Book your Trip with Meadowlark',
-        html: html,
-        generateTextFormHtml: true,
-      },
-      function(err) {
-        if (err) {
-          console.error('Unable to send confirmation:' + err.stack);
-        }
-      }
-    );
+    // mailTransport.sendMail(
+    //   {
+    //     from: '"Meadowlark Travel" info@meadowlarktravel.com',
+    //     to: cart.billing.email,
+    //     subject: 'Thank you for Book your Trip with Meadowlark',
+    //     html: html,
+    //     generateTextFormHtml: true,
+    //   },
+    //   function(err) {
+    //     if (err) {
+    //       console.error('Unable to send confirmation:' + err.stack);
+    //     }
+    //   }
+    // );
   });
   var emailService = require('./lib/email.js')(credentials);
   emailService.send(
@@ -337,8 +352,8 @@ app.use(function(err, req, res, next) {
 
 app.listen(app.get('port'), function() {
   console.log(
-    'Express started on http://localhost:' +
-      app.get('port') +
-      '; press Ctrl-C to terminate.'
+    `Express started in ${app.get('env')} mode on http://localhost:${app.get(
+      'port'
+    )}; press Ctrl-C to terminate.`
   );
 });
