@@ -261,8 +261,11 @@ mailTransport.sendMail(
     from: '"Luo.Reid" <info@tongjiao.xyz>',
     to: 'long.read@qq.com, "pxiaozei" <pxiaoxei@qq.com>',
     subject: 'Your Meadowlark Travel Tour',
+    html:
+      '<h1>Meadowlark Travel</h1>\n<p>Thanks for book your trip width Meadowlark Travel. <b>We look forward to your visit!</b></p>',
     text:
       'Thank you for booking your trip with Meadowlark Travel. We look forward to your visit!',
+    generateTextFormHtml: true,
   },
   function(err) {
     if (err) {
@@ -270,6 +273,47 @@ mailTransport.sendMail(
     }
   }
 );
+
+const VALID_EMAIL_REGEX = /^([A-Za-z0-9_\-\.\u4e00-\u9fa5])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,8})$/;
+
+app.post('/cart/checkout', function(req, res) {
+  var cart = req.session.cart;
+  if (!cart) {
+    next(new Error('Cart does not exist.'));
+  }
+  var name = req.body.name || '',
+    email = req.body.email || '';
+  if (!email.match(VALID_EMAIL_REGEX)) {
+    return res.next(new Error('Invalid email address.'));
+  }
+  cart.number = Math.random()
+    .toString()
+    .replace(/^0\.0*/, '');
+  cart.billing = { name: name, email: email };
+  res.render('email/cart-thank-you', { layout: null, cart: cart }, function(
+    err,
+    html
+  ) {
+    if (err) {
+      console.log('error in email template');
+    }
+    mailTransport.sendMail(
+      {
+        from: '"Meadowlark Travel" info@meadowlarktravel.com',
+        to: cart.billing.email,
+        subject: 'Thank you for Book your Trip with Meadowlark',
+        html: html,
+        generateTextFormHtml: true,
+      },
+      function(err) {
+        if (err) {
+          console.error('Unable to send confirmation:' + err.stack);
+        }
+      }
+    );
+  });
+  res.render('cart-thank-you', { cart: cart });
+});
 
 app.disable('x-powered-by');
 
