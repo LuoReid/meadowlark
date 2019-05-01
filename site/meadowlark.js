@@ -252,6 +252,7 @@ var nodemailer = require('nodemailer');
 var mailTransport = nodemailer.createTransport('SMTP', {
   service: 'Gmail',
   auth: {
+    type: 'OAth2',
     user: credentials.gmail.user,
     pass: credentials.gmail.password,
   },
