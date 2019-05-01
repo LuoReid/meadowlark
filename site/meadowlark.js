@@ -259,7 +259,7 @@ var mailTransport = nodemailer.createTransport('SMTP', {
 mailTransport.sendMail(
   {
     from: '"Luo.Reid" <info@tongjiao.xyz>',
-    to: 'long.read@qq.com',
+    to: 'long.read@qq.com, "pxiaozei" <pxiaoxei@qq.com>',
     subject: 'Your Meadowlark Travel Tour',
     text:
       'Thank you for booking your trip with Meadowlark Travel. We look forward to your visit!',
