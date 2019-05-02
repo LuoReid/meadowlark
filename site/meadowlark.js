@@ -58,11 +58,49 @@ app.use(function(req, res, next) {
 
 app.use(require('body-parser')());
 
-var cartValidation = require('./lib/cartValidation.js');
-app.use(cartValidation.checkWaivers);
-app.use(cartValidation.checkGuestCounts);
+// var cartValidation = require('./lib/cartValidation.js');
+// app.use(cartValidation.checkWaivers);
+// app.use(cartValidation.checkGuestCounts);
+
+app.use(function(req, res, next) {
+  var domain = require('domain').create();
+  domain.on('error', function(err) {
+    console.error('DOMAIN ERROR CAUGHT\n', err.stack);
+    try {
+      setTimeout(function() {
+        console.error('Failsafe shutdown.');
+        process.exit(1);
+      }, 5000);
+
+      var worker = require('cluster').worker;
+      if (worker) {
+        worker.disconnect();
+      }
+      server.close();
+
+      try {
+        next(err);
+      } catch (error) {
+        console.error('Express error mechanism failed.\n', err.stack);
+        res.statusCode = 500;
+        res.setHeader('content-type', 'text/plain');
+        res.end('Server error.');
+      }
+    } catch (err) {
+      console.error('Unable to send 500 response.\n', err.stack);
+    }
+  });
+  domain.add(req);
+  domain.add(res);
+  domain.run(next);
+});
 
 app.get('/', function(req, res) {
+  //req.session.cart = {};
+  var cluster = require('cluster');
+  if (cluster.isWorker) {
+    console.log('Worker %d received request', cluster.worker.id);
+  }
   res.render('home');
 });
 
@@ -337,6 +375,15 @@ app.post('/cart/checkout', function(req, res) {
   res.render('cart-thank-you', { cart: cart });
 });
 
+app.get('/fail', function(req, res) {
+  throw new Error('Nope!');
+});
+app.get('/epic-fail', function(req, res) {
+  process.nextTick(function() {
+    throw new Error('Kaboom!');
+  });
+});
+
 app.disable('x-powered-by');
 
 app.use(function(req, res) {
@@ -358,7 +405,16 @@ app.use(function(err, req, res, next) {
 //   );
 // });
 
+// app.enable('trust proxy');
+
 var http = require('http');
+var server = http.createServer(app).listen(app.get('port'), function() {
+  console.log(
+    `Express started in ${app.get('env')} mode on http://localhost:${app.get(
+      'port'
+    )};press Ctrl-C to terminate.`
+  );
+});
 function startServer() {
   http.createServer(app).listen(app.get('port'), function() {
     console.log(
