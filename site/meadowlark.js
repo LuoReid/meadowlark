@@ -58,6 +58,7 @@ app.use(function(req, res, next) {
 
 app.use(require('body-parser')());
 
+<<<<<<< HEAD
 // var cartValidation = require('./lib/cartValidation.js');
 // app.use(cartValidation.checkWaivers);
 // app.use(cartValidation.checkGuestCounts);
@@ -101,10 +102,44 @@ app.get('/', function(req, res) {
   if (cluster.isWorker) {
     console.log('Worker %d received request', cluster.worker.id);
   }
+=======
+var credentials = require('./credentials.js');
+app.use(require('cookie-parser')(credentials.cookieSecret));
+app.use(require('express-session')());
+
+app.use(function(req,res,next){
+  res.locals.flash = req.session.flash;
+  delete req.session.flash;
+  next();
+});
+
+var formidable = require('formidable');
+var jqupload = require('jquery-file-upload-middleware');
+app.use('/upload', function(req, res, next) {
+  var now = Date.now();
+  jqupload.fileHandler({
+    uploadDir: function() {
+      return __dirname + '/public/uploads/' + now;
+    },
+    uploadUrl: function() {
+      return '/uploads/' + now;
+    },
+  })(req, res, next);
+});
+
+app.get('/', function(req, res) {
+  res.cookie('monster','nom nom');
+  res.cookie('signed_monster','nom nom',{signed:true});
+  req.session.userName = 'Anonymous';
+  var colorScheme = req.session.colorScheme || 'dark';
+>>>>>>> 72ac5b3357818affa5944e7b4c0c8ba4dceeebd9
   res.render('home');
 });
 
 app.get('/about', function(req, res) {
+  var monster = req.cookies.monster;
+  var signedMonster = req.signedCookies.monster;
+  console.warn('req cookie:',monster,signedMonster);
   res.render('about', {
     fortune: fortune.getFortune(),
     pageTestScript: '/qa/tests-about.js',
@@ -166,8 +201,28 @@ app.post('/process-contact', function(req, res) {
 app.get('/newsletter', function(req, res) {
   res.render('newsletter', { csrf: 'CSRF token goes here' });
 });
+app.post('/newsletter',function(req,res){
+  var name = req.body.name || '',email = req.body.email|'';
+  const VALID_EMAIL_REGEX = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+/;
+  if(!email.match(VALID_EMAIL_REGEX)){
+    if(req.xhr) return res.json({error:'Invalid name email address.'});
+    req.session.flash = {
+      type:'danger',
+      intro:'Database error!',
+      message:'There was a database error; please try again later.',
+    }
+    return res.redirect(303,'/newsletter/archive');
+  }
+  if(req.xhr) return res.json({success:true});
+  req.session.flash = {
+    type:'success',
+    intro:'Thank you!',
+    message:'You have now been signed up for the newsletter.',
+  };
+  return res.redirect(303,'/newsletter/archive');
+})
 
-app.post('/process', function(req, res) {
+app.post('/process', function(req, res) {  
   // console.log(`Form (from queryString): ${req.query.form}`);
   // console.log(`CSRF token (from hidden form field): ${req.body._csrf}`);
   // console.log(`Name (from visible form field): ${req.body.name}`);
@@ -261,7 +316,6 @@ app.get('/data/nursery-rhyme', function(req, res) {
   });
 });
 
-var formidable = require('formidable');
 
 app.get('/contest/vacation-photo', function(req, res) {
   var now = new Date();
@@ -283,21 +337,8 @@ app.post('/contest/vacation-photo/:year/:month', function(req, res) {
   });
 });
 
-var jqupload = require('jquery-file-upload-middleware');
-app.use('/upload', function(req, res, next) {
-  var now = Date.now();
-  jqupload.fileHandler({
-    uploadDir: function() {
-      return __dirname + '/public/uploads/' + now;
-    },
-    uploadUrl: function() {
-      return '/uploads/' + now;
-    },
-  })(req, res, next);
-});
 
-var credentials = require('./credentials.js');
-
+<<<<<<< HEAD
 var nodemailer = require('nodemailer');
 var xoauth2 = require('xoauth2');
 // var mailTransport = nodemailer.createTransport('SMTP', {
@@ -385,6 +426,9 @@ app.get('/epic-fail', function(req, res) {
 });
 
 app.disable('x-powered-by');
+=======
+//app.disable('x-powered-by');
+>>>>>>> 72ac5b3357818affa5944e7b4c0c8ba4dceeebd9
 
 app.use(function(req, res) {
   res.status(404);
