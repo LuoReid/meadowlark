@@ -338,7 +338,6 @@ app.post('/contest/vacation-photo/:year/:month', function(req, res) {
 });
 
 
-<<<<<<< HEAD
 var nodemailer = require('nodemailer');
 var xoauth2 = require('xoauth2');
 // var mailTransport = nodemailer.createTransport('SMTP', {
@@ -426,9 +425,6 @@ app.get('/epic-fail', function(req, res) {
 });
 
 app.disable('x-powered-by');
-=======
-//app.disable('x-powered-by');
->>>>>>> 72ac5b3357818affa5944e7b4c0c8ba4dceeebd9
 
 app.use(function(req, res) {
   res.status(404);
