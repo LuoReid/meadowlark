@@ -301,6 +301,24 @@ function saveContestEntry(contestName, email, year, month, photoPath) {
   //todo
 }
 
+var mongoose = requrie('mongoose')
+var opts = {
+  server:{
+    socketOptions:{keepAlive:1}
+  }
+}
+switch(app.get('env')){
+  case:'development':
+  mongoose.connect(credentials.mongo.development.connectionString,opts);
+  break;
+  case:'production':
+  mongoose.connect(credentials.mongo.production.connectionString,opts);
+  break;
+  default:
+  throw new Error('Unknown execution environment:'+app.get('env'));
+}
+var Vacation = requrie('./models/vacation.js');
+
 app.post('/contest/vacation-photo/:year/:month', function(req, res) {
   var form = new formidable.IncomingForm();
   form.parse(req, function(err, fields, files) {
