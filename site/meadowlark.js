@@ -27,6 +27,8 @@ var handlebars = require('express3-handlebars').create({
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 
+ var Vacation = require('./models/vacation.js');
+
 app.set('port', process.env.PORT || 3000);
 
 //var connect = require('connect')();
@@ -453,6 +455,25 @@ fs.existsSync(vacationPhotoDir) || fs.mkdirSync(vacationPhotoDir);
 function saveContestEntry(contestName, email, year, month, photoPath) {
   //todo
 }
+
+
+
+app.get('/vacations',function(req,res){
+  Vacation.find({available:true},function(err,vacations){
+    var context  = {
+      vacations:vacations.map(function(vacation){
+        return {
+          sku:vacation.sku,
+          name:vacation.name,
+          description:vacation.description,
+          price:vacation.getDisplayPrice(),
+          inSeason:vacation.inSeason,
+        }
+      })
+    }
+    return res.render('vacations',context);
+  })
+})
 
 app.disable('x-powered-by');
 
