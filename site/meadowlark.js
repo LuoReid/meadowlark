@@ -461,22 +461,33 @@ function saveContestEntry(contestName, email, year, month, photoPath) {
   //todo
 }
 
-
+app.get('/set-currency/:currency',function(req,res){
+  req.session.currency = req.params.currency;
+  return res.redirect(303,'/vacations');
+})
 
 app.get('/vacations', function (req, res) {
   Vacation.find({ available: true }, function (err, vacations) {
+    var currency = req.session.currency || 'USD';
     var context = {
+      currency:currency,
       vacations: vacations.map(function (vacation) {
         return {
           sku: vacation.sku,
           name: vacation.name,
           description: vacation.description,
-          price: vacation.getDisplayPrice(),
+          price: convertFromUSD(vacation.priceInCents/100,currency),
           inSeason: vacation.inSeason,
+          qty:vacation.qty,
         }
       })
     }
-    return res.render('vacations', context);
+    switch(currency){
+      case 'USD':context.currencyUSD = 'selected';break;
+      case 'GBP':context.currencyGBP = 'selected';break;
+      case 'BTC':context.currencyBTC = 'selected';break;
+    }
+    res.render('vacations', context);
   })
 })
 
