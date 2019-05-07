@@ -453,6 +453,15 @@ app.get('/epic-fail', function (req, res) {
   });
 });
 
+var admin = express.Router();
+app.use(vhost('admin.*',admin));
+admin.get('/',function(req,res){
+  res.render('admin/home');
+})
+admin.get('/users',function(req,res){
+  res.render('admin/users');
+})
+
 var dataDir = __dirname + '/data';
 var vacationPhotoDir = dataDir + '/vacation-photo';
 fs.existsSync(dataDir) || fs.mkdirSync(dataDir);
