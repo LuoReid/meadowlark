@@ -462,6 +462,18 @@ admin.get('/users',function(req,res){
   res.render('admin/users');
 })
 
+//authorized
+function authorize(req,res,next){
+  if(req.session.authorized)return next();
+  res.render('not-authorized');
+}
+app.get('/secret',authorize,function(){
+  res.render('secret');
+})
+app.get('/sub-rosa',authorize,function(){
+  res.render('sub-rosa');
+})
+
 var dataDir = __dirname + '/data';
 var vacationPhotoDir = dataDir + '/vacation-photo';
 fs.existsSync(dataDir) || fs.mkdirSync(dataDir);
