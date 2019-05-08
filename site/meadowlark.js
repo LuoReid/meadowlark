@@ -540,6 +540,18 @@ app.post('/notify-me-when-in-season', function (req, res) {
 
 app.disable('x-powered-by');
 
+var autoViews = {};
+var fs = require('fs');
+app.use(function(req,res,next){
+  var path = req.path.toLowerCase();
+  if(autoViews[path]) return res.render(autoViews[path]);
+  if(fs.existsSync(__dirname+'/views'+path+'.handlebars')){
+    autoViews[path] = path.replace(/^\//,'');
+    return res.render(autoViews[path]);
+  }
+  next();
+})
+
 app.use(function (req, res) {
   res.status(404);
   res.render('404');
