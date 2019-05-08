@@ -12,6 +12,8 @@ switch (app.get('env')) {
     break;
 }
 
+requrie('./routes.js')(app);
+
 var fortune = require('./lib/fortune.js');
 
 var handlebars = require('express3-handlebars').create({
