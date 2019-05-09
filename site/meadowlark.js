@@ -29,6 +29,8 @@ var handlebars = require('express3-handlebars').create({
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 
+app.use('/api',require('cors')());
+
 var Vacation = require('./models/vacation.js');
 
 app.set('port', process.env.PORT || 3000);
