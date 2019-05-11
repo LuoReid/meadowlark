@@ -12,7 +12,7 @@ switch (app.get('env')) {
     break;
 }
 
-requrie('./routes.js')(app);
+require('./routes.js')(app);
 
 var fortune = require('./lib/fortune.js');
 
@@ -101,7 +101,7 @@ app.use(function (req, res, next) {
   domain.run(next);
 });
 
-var MongoSessionStore = requrie('session-mongoose')(require('connect'));
+var MongoSessionStore = require('session-mongoose')(require('connect'));
 var sessionStore = new MongoSessionStore({ url: credentials.mongo.connectionString });
 app.use(require('cookie-parser')(credentials.cookieSecret));
 app.use(require('express-session')({ store: sessionStore }));
