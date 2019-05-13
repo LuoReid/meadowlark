@@ -599,10 +599,10 @@ app.get('/api/attraction/:id', function (req, res) {
 
 var rest = require('connect-rest');
 var apiOptions = {
-  context: '/api',
+  context: '/',
   domain: require('domain').create(),
 };
-app.use(rest.rester(apiOptions));
+app.use(vhost('api.*',rest.rester(apiOptions)));
 rest.get('/attractions', function (req, content, cb) {
   Attraction.find({ approved: true }, function (err, attractions) {
     if (err) return cb({ error: 'Internal error.' });
