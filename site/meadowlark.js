@@ -29,7 +29,7 @@ var handlebars = require('express3-handlebars').create({
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 
-app.use('/api',require('cors')());
+app.use('/api', require('cors')());
 
 var Vacation = require('./models/vacation.js');
 
@@ -458,23 +458,23 @@ app.get('/epic-fail', function (req, res) {
 });
 
 var admin = express.Router();
-app.use(vhost('admin.*',admin));
-admin.get('/',function(req,res){
+app.use(vhost('admin.*', admin));
+admin.get('/', function (req, res) {
   res.render('admin/home');
 })
-admin.get('/users',function(req,res){
+admin.get('/users', function (req, res) {
   res.render('admin/users');
 })
 
 //authorized
-function authorize(req,res,next){
-  if(req.session.authorized)return next();
+function authorize(req, res, next) {
+  if (req.session.authorized) return next();
   res.render('not-authorized');
 }
-app.get('/secret',authorize,function(){
+app.get('/secret', authorize, function () {
   res.render('secret');
 })
-app.get('/sub-rosa',authorize,function(){
+app.get('/sub-rosa', authorize, function () {
   res.render('sub-rosa');
 })
 
@@ -486,31 +486,31 @@ function saveContestEntry(contestName, email, year, month, photoPath) {
   //todo
 }
 
-app.get('/set-currency/:currency',function(req,res){
+app.get('/set-currency/:currency', function (req, res) {
   req.session.currency = req.params.currency;
-  return res.redirect(303,'/vacations');
+  return res.redirect(303, '/vacations');
 })
 
 app.get('/vacations', function (req, res) {
   Vacation.find({ available: true }, function (err, vacations) {
     var currency = req.session.currency || 'USD';
     var context = {
-      currency:currency,
+      currency: currency,
       vacations: vacations.map(function (vacation) {
         return {
           sku: vacation.sku,
           name: vacation.name,
           description: vacation.description,
-          price: convertFromUSD(vacation.priceInCents/100,currency),
+          price: convertFromUSD(vacation.priceInCents / 100, currency),
           inSeason: vacation.inSeason,
-          qty:vacation.qty,
+          qty: vacation.qty,
         }
       })
     }
-    switch(currency){
-      case 'USD':context.currencyUSD = 'selected';break;
-      case 'GBP':context.currencyGBP = 'selected';break;
-      case 'BTC':context.currencyBTC = 'selected';break;
+    switch (currency) {
+      case 'USD': context.currencyUSD = 'selected'; break;
+      case 'GBP': context.currencyGBP = 'selected'; break;
+      case 'BTC': context.currencyBTC = 'selected'; break;
     }
     res.render('vacations', context);
   })
@@ -544,58 +544,77 @@ app.disable('x-powered-by');
 
 var autoViews = {};
 var fs = require('fs');
-app.use(function(req,res,next){
+app.use(function (req, res, next) {
   var path = req.path.toLowerCase();
-  if(autoViews[path]) return res.render(autoViews[path]);
-  if(fs.existsSync(__dirname+'/views'+path+'.handlebars')){
-    autoViews[path] = path.replace(/^\//,'');
+  if (autoViews[path]) return res.render(autoViews[path]);
+  if (fs.existsSync(__dirname + '/views' + path + '.handlebars')) {
+    autoViews[path] = path.replace(/^\//, '');
     return res.render(autoViews[path]);
   }
   next();
 })
 
 var Attraction = require('./models/attraction.js');
-app.get('/api/attractions',function(req,res){
-  Attraction.find({approved:true},function(err,attractions){
-    if(err)return res.send(500,'Error occurred: database error.');
-    res.json(attractions.map(function(a){
+app.get('/api/attractions', function (req, res) {
+  Attraction.find({ approved: true }, function (err, attractions) {
+    if (err) return res.send(500, 'Error occurred: database error.');
+    res.json(attractions.map(function (a) {
       return {
-        name:a.name,
-        id:a._id,
-        description:a.description,
-        location:a.location,
+        name: a.name,
+        id: a._id,
+        description: a.description,
+        location: a.location,
       }
     }));
   });
 });
-app.post('/api/attraction',function(req,res){
+app.post('/api/attraction', function (req, res) {
   var a = new Attraction({
-    name:req.body.name,
-    description:req.body.description,
-    location:{lat:req.body.lat,lng:req.body.lng},
-    history:{
-      event:'created',
-      email:req.body.email,
-      date:new Date(),
+    name: req.body.name,
+    description: req.body.description,
+    location: { lat: req.body.lat, lng: req.body.lng },
+    history: {
+      event: 'created',
+      email: req.body.email,
+      date: new Date(),
     },
-    approved:false,
+    approved: false,
   });
-  a.save(function(err,a){
-    if(err)return res.send(500,'Error occurred: database error.');
-    res.json({id:a._id});
+  a.save(function (err, a) {
+    if (err) return res.send(500, 'Error occurred: database error.');
+    res.json({ id: a._id });
   });
 });
-app.get('/api/attraction/:id',function(req,res){
-  Attraction.findById(req.params.id,function(err,a){
-    if(err)return res.send(500,'Error occurred: database error.');
+app.get('/api/attraction/:id', function (req, res) {
+  Attraction.findById(req.params.id, function (err, a) {
+    if (err) return res.send(500, 'Error occurred: database error.');
     res.json({
-      name:a.name,
-      id:a._id,
-      description:a.description,
-      location:a.location,
+      name: a.name,
+      id: a._id,
+      description: a.description,
+      location: a.location,
     });
   });
 });
+
+var rest = require('connect-rest');
+var apiOptions = {
+  context: '/api',
+  domain: require('domain').create(),
+};
+app.use(rest.rester(apiOptions));
+rest.get('/attractions', function (req, content, cb) {
+  Attraction.find({ approved: true }, function (err, attractions) {
+    if (err) return cb({ error: 'Internal error.' });
+    cb(null, attractions.map(function (a) {
+      return {
+        name: a.name,
+        description: a.description,
+        location: a.location,
+      }
+    }))
+  })
+})
 
 app.use(function (req, res) {
   res.status(404);
