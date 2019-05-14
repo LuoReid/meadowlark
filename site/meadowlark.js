@@ -652,6 +652,13 @@ apiOptions.domain.on('error', function (err) {
   if (worker) worker.disconnect();
 })
 
+var static = require('./lib/static.js').map;
+app.use(function(req,res,next){
+  var now = new Date();
+  res.locals.logoImage = now.getMonth() == 11 && now.getDate() == 19 ? static('/img/logo_bud_clark.png') : static('/img/logo.png');
+  next();
+})
+
 app.use(function (req, res) {
   res.status(404);
   res.render('404');
