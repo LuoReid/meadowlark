@@ -39,6 +39,14 @@
 
   {{{_sections.jquery}}}
 
+  <script>
+    var IMG_CART_EMPTY = '{{static '/img/shop/cart_empty.png'}}';
+    var IMG_CART_FULL = '{{static '/img/shop/cart_full.png'}}';
+    $(document).on('meadowlark_cart_changed',function(){
+      $('header img.cartIcon').attr('src',cart.isEmpty()?IMG_CART_EMPTY:IMG_CART_FULL);
+    })
+  </script>
+
   {{#if showTests}}
   <div id="mocha"></div>
   <script src="/vendor/mocha.js"></script>
