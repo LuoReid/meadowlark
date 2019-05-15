@@ -13,6 +13,8 @@
   <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.min.css"
     integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
   <link rel="stylesheet" href="{{static /css/main.css}}">
+
+  <link rel="stylesheet" href="{{static '/css/meadowlark.min.css'}}">
 </head>
 
 <body>
@@ -37,13 +39,15 @@
     integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
     crossorigin="anonymous"></script>
 
+  <script src="{{static '/js/meadowlark.min.js'}}"></script>
+
   {{{_sections.jquery}}}
 
   <script>
-    var IMG_CART_EMPTY = '{{static '/img/shop/cart_empty.png'}}';
-    var IMG_CART_FULL = '{{static '/img/shop/cart_full.png'}}';
-    $(document).on('meadowlark_cart_changed',function(){
-      $('header img.cartIcon').attr('src',cart.isEmpty()?IMG_CART_EMPTY:IMG_CART_FULL);
+    var IMG_CART_EMPTY = '{{static ' / img / shop / cart_empty.png'}}';
+    var IMG_CART_FULL = '{{static ' / img / shop / cart_full.png'}}';
+    $(document).on('meadowlark_cart_changed', function () {
+      $('header img.cartIcon').attr('src', cart.isEmpty() ? IMG_CART_EMPTY : IMG_CART_FULL);
     })
   </script>
 
