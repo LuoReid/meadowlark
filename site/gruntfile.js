@@ -46,7 +46,7 @@ module.exports = function (grunt) {
       },
       all: {
         src: ['public/js/meadowlark.min.js', 'public/css/meadowlark.min.js'],
-        dest: ['views/layouts/main.handlebars'],
+        dest: ['config.js'],
       }
     }
   });

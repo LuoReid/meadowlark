@@ -15,6 +15,13 @@
   <link rel="stylesheet" href="{{static /css/main.css}}">
 
   <link rel="stylesheet" href="{{static '/css/meadowlark.min.css'}}">
+
+  {{#each _bundles.css}}
+  <link rel="stylesheet" href="{{static .}}">
+  {{/each}}
+  {{#each _bundles.js.head}}
+  <script src="{{static .}}"></script>
+  {{/each}}
 </head>
 
 <body>
