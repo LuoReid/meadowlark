@@ -79,9 +79,9 @@ module.exports = function (grunt) {
       options: {
         rules: [{ pattern: /url\(/, message: 'Un-mapped static found in LESS property.' }]
       },
-      files:{src:['less/**/*.less']}
+      files: { src: ['less/**/*.less'] }
     }
   });
-  grunt.registerTask('default', ['cafemocha', 'jshint', 'exec','lint_pattern']);
+  grunt.registerTask('default', ['cafemocha', 'jshint', 'exec', 'lint_pattern']);
   grunt.registerTask('static', ['less', 'cssmin', 'uglify', 'hashres']);
 };
