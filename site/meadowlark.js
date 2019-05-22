@@ -680,8 +680,12 @@ app.use(function (err, req, res, next) {
 
 // app.enable('trust proxy');
 
-var http = require('http');
-var server = http.createServer(app).listen(app.get('port'), function () {
+var https = require('https');
+var options = {
+  key:fs.readFileSync(__dirname+'/ssl/meadowlark.pem'),
+  cert:fs.readFileSync(__dirname+'/ssl/meadowlark.crt')
+}
+var server = https.createServer(options,app).listen(app.get('port'), function () {
   console.log(
     `Express started in ${app.get('env')} mode on http://localhost:${app.get(
       'port'
