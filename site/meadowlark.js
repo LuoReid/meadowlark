@@ -665,6 +665,20 @@ app.use(function (req, res, next) {
   next();
 });
 
+var auth = require('./lib/auth.js')(app, {
+  providers: credentials.authProviders,
+  successRedirect: '/account',
+  failureRedirect: '/unauthorized',
+});
+auth.init();
+auth.registerRoutes();
+
+app.get('/account', function (req, res) {
+  if (!req.session.passport.user)
+    return res.redirect(303, '/unauthorized');
+  res.render('account');
+});
+
 app.use(function (req, res) {
   res.status(404);
   res.render('404');
