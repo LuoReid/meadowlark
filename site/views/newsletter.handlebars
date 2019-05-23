@@ -1,7 +1,7 @@
 <div class="formContainer">
   <h2>Sign up for our newsletter to receive news and specials!</h2>
   <form class="form-horizontal newsletterForm" role="form" action="/process?form=newsletter" method="POST">
-    <input type="hidden" name="_csrf" value="{{csrf}}">
+    <input type="hidden" name="_csrf" value="{{_csrfToken}}">
     <div class="form-group">
       <label for="fieldName" class="col-sm-2 control-label">Name</label>
       <div class="col-sm-4">
@@ -23,21 +23,21 @@
 </div>
 {{#section 'jquery'}}
 <script>
-  $(document).ready(function(){
-    $('.newsletterForm').on('submit',function(evt){
+  $(document).ready(function () {
+    $('.newsletterForm').on('submit', function (evt) {
       evt.preventDefault();
       var action = $(this).attr('action');
       var $container = $(this).closest('.formContainer');
       $.ajax({
-        url:action,
-        type:'POST',
-        success:function(data){
-          if(data.success){
+        url: action,
+        type: 'POST',
+        success: function (data) {
+          if (data.success) {
             $container.html('<h2>Thank you!</h2>');
-          }else{
+          } else {
             $container.html('There was a problem.');
           }
-        },error:function(){
+        }, error: function () {
           $container.html('There was a problem.');
         }
       });

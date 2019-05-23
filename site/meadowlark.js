@@ -24,7 +24,7 @@ var handlebars = require('express3-handlebars').create({
       this._sections[name] = options.fn(this);
       return null;
     },
-    static:function(name){
+    static: function (name) {
       return require('./lib/static.js').map(name);
     }
   },
@@ -605,7 +605,7 @@ var apiOptions = {
   context: '/',
   domain: require('domain').create(),
 };
-app.use(vhost('api.*',rest.rester(apiOptions)));
+app.use(vhost('api.*', rest.rester(apiOptions)));
 rest.get('/attractions', function (req, content, cb) {
   Attraction.find({ approved: true }, function (err, attractions) {
     if (err) return cb({ error: 'Internal error.' });
@@ -653,11 +653,17 @@ apiOptions.domain.on('error', function (err) {
 })
 
 var static = require('./lib/static.js').map;
-app.use(function(req,res,next){
+app.use(function (req, res, next) {
   var now = new Date();
   res.locals.logoImage = now.getMonth() == 11 && now.getDate() == 19 ? static('/img/logo_bud_clark.png') : static('/img/logo.png');
   next();
 })
+
+app.use(require('csurf')());
+app.use(function (req, res, next) {
+  res.locals._csrfToken = req.csrfToken();
+  next();
+});
 
 app.use(function (req, res) {
   res.status(404);
@@ -682,10 +688,10 @@ app.use(function (err, req, res, next) {
 
 var https = require('https');
 var options = {
-  key:fs.readFileSync(__dirname+'/ssl/meadowlark.pem'),
-  cert:fs.readFileSync(__dirname+'/ssl/meadowlark.crt')
+  key: fs.readFileSync(__dirname + '/ssl/meadowlark.pem'),
+  cert: fs.readFileSync(__dirname + '/ssl/meadowlark.crt')
 }
-var server = https.createServer(options,app).listen(app.get('port'), function () {
+var server = https.createServer(options, app).listen(app.get('port'), function () {
   console.log(
     `Express started in ${app.get('env')} mode on http://localhost:${app.get(
       'port'
