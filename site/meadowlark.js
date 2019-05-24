@@ -673,11 +673,38 @@ var auth = require('./lib/auth.js')(app, {
 auth.init();
 auth.registerRoutes();
 
-app.get('/account', function (req, res) {
-  if (!req.session.passport.user)
-    return res.redirect(303, '/unauthorized');
+
+function customerOnly(req,res){
+  var user = req.session.passport.user;
+  if(user && req.role === 'customer') return next();
+  res.redirect(303,'/unauthorized');
+}
+function employeeOnly(req,res,next){
+  var user = req.session.passport.user;
+  if(user && req.role === 'employee') return next();
+  next('route');
+}
+function allow(roles){
+  var user = req.session.passport.user;
+  if(user && roles.split(',').indexOf(user.role) !== -1) return next();
+  res.render(303,'/unauthorized');
+}
+app.get('/account1',allow('customer,employee'),function(req,res){
+  res.render('account');
+})
+app.get('/account', customerOnly,function(req,res){
   res.render('account');
 });
+app.get('/account/order-history',customerOnly,function(req,res){
+  res.render('account/order-history');
+});
+app.get('/account/email-prefs',customerOnly,function(req,res){
+  res.render('account/email-prefs');
+});
+app.get('/sales',employeeOnly,function(req,res){
+  res.render('sales');
+})
+
 
 app.use(function (req, res) {
   res.status(404);
