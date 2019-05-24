@@ -42,6 +42,26 @@ module.exports = function (app, options) {
           });
         });
       }));
+      passport.use(new GoogleStrategy({
+        returnURL: 'https://' + host + '/auth/google/return',
+        realm: 'https://' + host + '/',
+      }, function (identifier, profile, done) {
+        var authId = 'google:' + identifier;
+        User.findOne({ authId: authId }, function (err, user) {
+          if (err) return done(err, null);
+          if (user) return done(null, user);
+          user = new User({
+            authId: authId,
+            name: profile.displayName,
+            created: Date.now(),
+            role: 'customer',
+          });
+          user.save(function (err) {
+            if (err) return done(err, null);
+            done(null, user);
+          });
+        });
+      }));
       app.use(passport.initialize());
       app.use(passport.session());
     },
@@ -55,6 +75,17 @@ module.exports = function (app, options) {
         passport.authenticate('facebook', { failureRedirect: options.failureRedirect }, function (req, res) {
           res.redirect(303, req.query.redirect || options.successRedirect);
         })
+      );
+      app.get('/auth/google', function (req, res, next) {
+        passport.authenticate('google', {
+          callbackURL: '/auth/google/callback?redirect=' + encodeURIComponent(req.query.redirect),
+        })(req, res.next);
+      });
+      app.get('/auth/google/callback',
+        passport.authenticate('google', { failureRedirect: options.failureRedirect },
+          function (req, res) {
+            res.redirect(303, req.query.redirect || options.successRedirect);
+          })
       );
     }
   }
