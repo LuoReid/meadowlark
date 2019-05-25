@@ -10,5 +10,9 @@ module.exports = {
         appSecret: 'your_app_secret',
       }
     }
+  },
+  twitter:{
+    consumerKey:'my_twitter_key',
+    consumerSecret:'my_twitter_secret',
   }
 }

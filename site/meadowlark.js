@@ -705,6 +705,13 @@ app.get('/sales',employeeOnly,function(req,res){
   res.render('sales');
 })
 
+var twitter = require('./lib/twitter')({
+  consumerKey:credentials.twitter.consumerKey,
+  consumerSecret:credentials.twitter.consumerSecret,
+});
+twitter.search('#meadowlarktravel',10,function(result){
+  //twitter content is on result.statuses
+});
 
 app.use(function (req, res) {
   res.status(404);
