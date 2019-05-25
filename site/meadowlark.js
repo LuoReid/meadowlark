@@ -1,5 +1,6 @@
 var express = require('express');
 var app = express();
+var Q = require(q);
 
 switch (app.get('env')) {
   case 'development':
@@ -674,44 +675,71 @@ auth.init();
 auth.registerRoutes();
 
 
-function customerOnly(req,res){
+function customerOnly(req, res) {
   var user = req.session.passport.user;
-  if(user && req.role === 'customer') return next();
-  res.redirect(303,'/unauthorized');
+  if (user && req.role === 'customer') return next();
+  res.redirect(303, '/unauthorized');
 }
-function employeeOnly(req,res,next){
+function employeeOnly(req, res, next) {
   var user = req.session.passport.user;
-  if(user && req.role === 'employee') return next();
+  if (user && req.role === 'employee') return next();
   next('route');
 }
-function allow(roles){
+function allow(roles) {
   var user = req.session.passport.user;
-  if(user && roles.split(',').indexOf(user.role) !== -1) return next();
-  res.render(303,'/unauthorized');
+  if (user && roles.split(',').indexOf(user.role) !== -1) return next();
+  res.render(303, '/unauthorized');
 }
-app.get('/account1',allow('customer,employee'),function(req,res){
+app.get('/account1', allow('customer,employee'), function (req, res) {
   res.render('account');
 })
-app.get('/account', customerOnly,function(req,res){
+app.get('/account', customerOnly, function (req, res) {
   res.render('account');
 });
-app.get('/account/order-history',customerOnly,function(req,res){
+app.get('/account/order-history', customerOnly, function (req, res) {
   res.render('account/order-history');
 });
-app.get('/account/email-prefs',customerOnly,function(req,res){
+app.get('/account/email-prefs', customerOnly, function (req, res) {
   res.render('account/email-prefs');
 });
-app.get('/sales',employeeOnly,function(req,res){
+app.get('/sales', employeeOnly, function (req, res) {
   res.render('sales');
 })
 
 var twitter = require('./lib/twitter')({
-  consumerKey:credentials.twitter.consumerKey,
-  consumerSecret:credentials.twitter.consumerSecret,
+  consumerKey: credentials.twitter.consumerKey,
+  consumerSecret: credentials.twitter.consumerSecret,
 });
-twitter.search('#meadowlarktravel',10,function(result){
+twitter.search('#meadowlarktravel', 10, function (result) {
   //twitter content is on result.statuses
 });
+var topTweets = {
+  count: 10,
+  lastRefreshed: 0,
+  refreshInterval: 15 * 60 * 1000,
+  tweets: [],
+}
+function getTopTweets(cb) {
+  if (Date.now() < topTweets.lastRefreshed + topTweets.refreshInterval)
+    return cb(topTweets.tweets);
+  twitter.search('#meadowlarktravel', topTweets.count, function (result) {
+    var formattedTweets = [];
+    var promises = [];
+    var embedOpts = { omit_script: 1 };
+    result.statuses.forEach(function (status) {
+      var deferred = Q.defer();
+      twitter.embed(status.id_str, embedOpts, function (embed) {
+        formattedTweets.push(embed.html);
+        deferred.resolve();
+      });
+      promises.push(deferred.promise);
+    });
+    Q.all(promises).then(function () {
+      topTweets.lastRefreshed = Date.now();
+      cb(topTweets.tweets = formattedTweets);
+    });
+  });
+}
 
 app.use(function (req, res) {
   res.status(404);
