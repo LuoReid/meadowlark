@@ -741,6 +741,53 @@ function getTopTweets(cb) {
   });
 }
 
+var dealerCache = {
+  lastRefreshed: 0,
+  refreshInterval: 60 * 60 * 1000,
+  jsonUrl: '/dealers.json',
+  geocodeLimit: 2000,
+  geocodeCount: 0,
+  geocodeBegin: 0,
+}
+dealerCache.jsonFile = __dirname + '/public' + dealerCache.jsonUrl;
+function geocodeDealer(dealer) {
+  var addr = dealer.getAddress(' ');
+  if (addr === dealer.geocodeAddress) return;
+  if (dealerCache.geocodeCount >= dealerCache.geocodeLimit) {
+    if (Date.now() > dealerCache.geocodeCount + 24 * 60 * 60 * 1000) {
+      dealerCache.geocodeBegin = Date.now();
+      dealerCache.geocodeCount = 0;
+    } else {
+      // limit use count by api provider
+      return;
+    }
+  }
+  geocode(addr, function (err, coords) {
+    if (err) return console.log('Geocoding failure for ' + addr);
+    dealer.lat = coords.lat;
+    dealer.lng = coords.lng;
+    dealer.save();
+  });
+}
+dealerCache.refresh = function (cb) {
+  if (Date.now() > dealerCache.lastRefreshed + dealerCache.refreshInterval) {
+    Dealer.find({ active: true }, function (err, dealers) {
+      if (err) return console.log('Error fetching dealers: ' + err);
+      dealers.forEach(geocodeDealer);
+      fs.writeFileSync(dealerCache.jsonFile, JSON.stringify(dealers));
+      cb();
+    });
+  }
+}
+function refreshDealerCacheForever() {
+  dealerCache.refresh(function () {
+    setTimeout(refreshDealerCacheForever, dealerCache.refreshInterval);
+  });
+}
+if (!fs.existsSync(dealerCache.jsonFile))
+  fs.writeFileSync(JSON.stringify([]));
+refreshDealerCacheForever();
+
 app.use(function (req, res) {
   res.status(404);
   res.render('404');
