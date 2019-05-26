@@ -14,5 +14,8 @@ module.exports = {
   twitter:{
     consumerKey:'my_twitter_key',
     consumerSecret:'my_twitter_secret',
+  },
+  weatherUnderground:{
+    apiKey:'my_weather_api_key',
   }
 }
